@@ -158,9 +158,4 @@ class TaskResultManager(models.Manager):
         """Delete all expired results."""
         meta = self.model._meta
         with transaction.atomic():
-            self.get_all_expired(expires).update(hidden=True)
-            cursor = self.connection_for_write().cursor()
-            cursor.execute(
-                'DELETE FROM {0.db_table} WHERE hidden=%s'.format(meta),
-                (True, ),
-            )
+            self.get_all_expired(expires).delete()
