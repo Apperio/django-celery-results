@@ -16,6 +16,12 @@ class DatabaseBackend(BaseDictBackend):
     def _store_result(self, task_id, result, status,
                       traceback=None, request=None):
         """Store return value and status of an executed task."""
+        if task_id is None:
+            # Sometimes, when a worker dies prematurely, the task_id is None.
+            # It does not make any sense to even attempt to store the result
+            # for it, so we return early.
+            return result
+
         content_type, content_encoding, result = self.encode_content(result)
         _, _, meta = self.encode_content({
             'children': self.current_task_children(request),
